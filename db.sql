@@ -1,104 +1,62 @@
--- File: db_setup_and_insert.sql
--- Script SQL ini akan:
--- 1. Membuat database 'spk_garam_db' (jika belum ada).
--- 2. Membuat tabel Kriteria, Alternatif, dan Nilai_Alternatif.
--- 3. Mengisi tabel dengan data 5 Kriteria dan 18 Alternatif sesuai perhitungan manual Anda.
+-- Buat Database Baru
+CREATE DATABASE spk_garam_smart;
+USE spk_garam_smart;
 
--- -------------------------------------------
--- LANGKAH 1: SETUP DATABASE DAN TABEL
--- -------------------------------------------
-
--- Membuat database (jika belum ada) dan menggunakannya
-CREATE DATABASE IF NOT EXISTS spk_garam_db;
-USE spk_garam_db;
-
--- 1. Membuat Tabel Kriteria
-CREATE TABLE IF NOT EXISTS kriteria (
-    id_kriteria VARCHAR(10) PRIMARY KEY,
-    nama_kriteria VARCHAR(100) NOT NULL,
-    tipe_kriteria ENUM('benefit', 'cost') NOT NULL,
-    bobot INT NOT NULL,
-    CHECK (bobot >= 0 AND bobot <= 100)
+-- 1. Tabel Admin (Untuk Login)
+CREATE TABLE tb_admin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50),
+    password VARCHAR(255)
 );
 
--- 2. Membuat Tabel Alternatif
-CREATE TABLE IF NOT EXISTS alternatif (
-    id_alternatif VARCHAR(10) PRIMARY KEY,
-    nama_alternatif VARCHAR(100) NOT NULL
+-- Insert User Admin (Password: admin)
+INSERT INTO tb_admin (username, password) VALUES ('admin', 'admin');
+
+-- 2. Tabel Kriteria (Opsional, untuk referensi)
+CREATE TABLE tb_kriteria (
+    kode VARCHAR(5) PRIMARY KEY,
+    nama VARCHAR(100),
+    sifat ENUM('Cost', 'Benefit'),
+    bobot FLOAT
 );
 
--- 3. Membuat Tabel Nilai Alternatif (Matriks Keputusan)
-CREATE TABLE IF NOT EXISTS nilai_alternatif (
-    id_nilai INT AUTO_INCREMENT PRIMARY KEY,
-    id_alternatif VARCHAR(10) NOT NULL,
-    id_kriteria VARCHAR(10) NOT NULL,
-    nilai DECIMAL(15, 2) NOT NULL,
-    FOREIGN KEY (id_alternatif) REFERENCES alternatif(id_alternatif) ON DELETE CASCADE,
-    FOREIGN KEY (id_kriteria) REFERENCES kriteria(id_kriteria) ON DELETE CASCADE,
-    UNIQUE KEY unique_nilai (id_alternatif, id_kriteria)
+INSERT INTO tb_kriteria VALUES 
+('C1', 'Biaya Tetap', 'Cost', 0.2),
+('C2', 'Biaya Variabel', 'Cost', 0.2),
+('C3', 'Jumlah Produksi', 'Benefit', 0.3),
+('C4', 'Harga Jual', 'Benefit', 0.2),
+('C5', 'Luas Lahan', 'Benefit', 0.1);
+
+-- 3. Tabel Alternatif (Data 20 Petani SESUAI EXCEL)
+CREATE TABLE alternatif (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100),
+    c1 DOUBLE, -- Biaya Tetap (Cost)
+    c2 DOUBLE, -- Biaya Variabel (Cost)
+    c3 DOUBLE, -- Produksi (Benefit)
+    c4 DOUBLE, -- Harga (Benefit)
+    c5 DOUBLE  -- Lahan (Benefit)
 );
 
--- -------------------------------------------
--- LANGKAH 2: PENGHAPUSAN DAN PENGISIAN DATA
--- -------------------------------------------
-
--- Hapus data lama (penting jika script dijalankan ulang)
-DELETE FROM nilai_alternatif;
-DELETE FROM kriteria;
-DELETE FROM alternatif;
-
--- PENGISIAN DATA KRITERIA (5 Kriteria)
-INSERT INTO kriteria (id_kriteria, nama_kriteria, tipe_kriteria, bobot) VALUES
-('C1', 'Biaya Tetap (Sewa, Pompa, dll)', 'cost', 20),
-('C2', 'Biaya Variabel (Tenaga, Angkut)', 'cost', 20),
-('C3', 'Jumlah Produksi (Ton)', 'benefit', 30),
-('C4', 'Harga Jual (Per Ton)', 'benefit', 20),
-('C5', 'Luas Lahan (Hektar)', 'benefit', 10);
-
--- PENGISIAN DATA ALTERNATIF (18 Petani)
-INSERT INTO alternatif (id_alternatif, nama_alternatif) VALUES
-('A1', 'Petani A (Jurnal)'), ('A2', 'Petani B'), ('A3', 'Petani C'), 
-('A4', 'Petani D'), ('A5', 'Petani E'), ('A6', 'Petani F'), 
-('A7', 'Petani G'), ('A8', 'Petani H'), ('A9', 'Petani I'), 
-('A10', 'Petani J'), ('A11', 'Petani K'), ('A12', 'Petani L'), 
-('A13', 'Petani M'), ('A14', 'Petani N'), ('A15', 'Petani O'), 
-('A16', 'Petani P'), ('A17', 'Petani Q'), ('A18', 'Petani R');
-
--- PENGISIAN DATA NILAI ALTERNATIF (Matriks 18x5)
-INSERT INTO nilai_alternatif (id_alternatif, id_kriteria, nilai) VALUES
--- Petani A (Jurnal)
-('A1', 'C1', 24509440.00), ('A1', 'C2', 14544200.00), ('A1', 'C3', 102.24), ('A1', 'C4', 1692000.00), ('A1', 'C5', 1.00),
--- Petani B
-('A2', 'C1', 30000000.00), ('A2', 'C2', 17000000.00), ('A2', 'C3', 115.00), ('A2', 'C4', 1800000.00), ('A2', 'C5', 1.50),
--- Petani C
-('A3', 'C1', 20000000.00), ('A3', 'C2', 10000000.00), ('A3', 'C3', 150.00), ('A3', 'C4', 2000000.00), ('A3', 'C5', 2.00),
--- Petani D
-('A4', 'C1', 45000000.00), ('A4', 'C2', 25000000.00), ('A4', 'C3', 80.00), ('A4', 'C4', 1600000.00), ('A4', 'C5', 1.00),
--- Petani E
-('A5', 'C1', 25000000.00), ('A5', 'C2', 12000000.00), ('A5', 'C3', 140.00), ('A5', 'C4', 1950000.00), ('A5', 'C5', 1.50),
--- Petani F
-('A6', 'C1', 32000000.00), ('A6', 'C2', 15000000.00), ('A6', 'C3', 110.00), ('A6', 'C4', 1850000.00), ('A6', 'C5', 1.00),
--- Petani G
-('A7', 'C1', 40000000.00), ('A7', 'C2', 20000000.00), ('A7', 'C3', 90.00), ('A7', 'C4', 1750000.00), ('A7', 'C5', 1.50),
--- Petani H
-('A8', 'C1', 28000000.00), ('A8', 'C2', 13000000.00), ('A8', 'C3', 125.00), ('A8', 'C4', 1700000.00), ('A8', 'C5', 1.00),
--- Petani I
-('A9', 'C1', 40000000.00), ('A9', 'C2', 20000000.00), ('A9', 'C3', 90.00), ('A9', 'C4', 1800000.00), ('A9', 'C5', 1.50),
--- Petani J
-('A10', 'C1', 42000000.00), ('A10', 'C2', 22000000.00), ('A10', 'C3', 100.00), ('A10', 'C4', 1700000.00), ('A10', 'C5', 1.00),
--- Petani K
-('A11', 'C1', 35000000.00), ('A11', 'C2', 17000000.00), ('A11', 'C3', 115.00), ('A11', 'C4', 1900000.00), ('A11', 'C5', 2.00),
--- Petani L
-('A12', 'C1', 48000000.00), ('A12', 'C2', 28000000.00), ('A12', 'C3', 75.00), ('A12', 'C4', 1500000.00), ('A12', 'C5', 1.00),
--- Petani M
-('A13', 'C1', 29000000.00), ('A13', 'C2', 13000000.00), ('A13', 'C3', 130.00), ('A13', 'C4', 1850000.00), ('A13', 'C5', 1.50),
--- Petani N
-('A14', 'C1', 38000000.00), ('A14', 'C2', 19000000.00), ('A14', 'C3', 105.00), ('A14', 'C4', 1750000.00), ('A14', 'C5', 1.00),
--- Petani O
-('A15', 'C1', 30000000.00), ('A15', 'C2', 14000000.00), ('A15', 'C3', 120.00), ('A15', 'C4', 1950000.00), ('A15', 'C5', 2.00),
--- Petani P
-('A16', 'C1', 28000000.00), ('A16', 'C2', 13000000.00), ('A16', 'C3', 135.00), ('A16', 'C4', 1900000.00), ('A16', 'C5', 1.50),
--- Petani Q
-('A17', 'C1', 40000000.00), ('A17', 'C2', 20000000.00), ('A17', 'C3', 100.00), ('A17', 'C4', 1700000.00), ('A17', 'C5', 1.00),
--- Petani R
-('A18', 'C1', 35000000.00), ('A18', 'C2', 16000000.00), ('A18', 'C3', 120.00), ('A18', 'C4', 1800000.00), ('A18', 'C5', 1.00);
+-- Insert Data 20 Petani (Angka Persis dari Excel)
+INSERT INTO alternatif (nama, c1, c2, c3, c4, c5) VALUES
+('Petani A (dari jurnal)', 24509440, 14544200, 102.24, 1692000, 1),
+('Petani B', 22000000, 13000000, 98, 1650000, 1),
+('Petani C', 20500000, 12500000, 105, 1700000, 1.5),
+('Petani D', 28000000, 16000000, 100, 1600000, 1),
+('Petani E', 35000000, 18000000, 150, 1750000, 2),
+('Petani F', 24000000, 14000000, 101, 1680000, 1),
+('Petani G', 19000000, 11500000, 95, 1600000, 0.8),
+('Petani H', 26000000, 15500000, 103, 1690000, 1.2),
+('Petani I', 23500000, 14200000, 100, 1670000, 1),
+('Petani J', 30000000, 17000000, 120, 1720000, 1.5),
+('Petani K', 21000000, 13500000, 99, 1660000, 1),
+('Petani L', 25000000, 15000000, 102, 1690000, 1),
+('Petani M', 27500000, 16500000, 104, 1710000, 1.3),
+('Petani N', 22500000, 13800000, 97, 1640000, 1),
+('Petani O', 18500000, 11000000, 90, 1580000, 0.7),
+('Petani P', 32000000, 17500000, 130, 1730000, 1.8),
+('Petani Q', 24200000, 14400000, 101.5, 1685000, 1),
+('Petani R', 29000000, 16800000, 110, 1700000, 1.4),
+('Petani S', 20000000, 12800000, 96, 1630000, 0.9),
+('Petani T', 25500000, 15200000, 102.5, 1695000, 1.1);
