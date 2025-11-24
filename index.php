@@ -18,6 +18,7 @@ if($_SESSION['status'] != "login"){
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="data_petani.php">Kriteria</a></li>
                     <li class="nav-item"><a class="nav-link" href="data_petani.php">Data Petani</a></li>
                     <li class="nav-item"><a class="nav-link" href="hasil.php">Hasil Perhitungan</a></li>
                     <li class="nav-item"><a class="nav-link btn btn-danger btn-sm text-white ms-3" href="logout.php">Logout</a></li>
