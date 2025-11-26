@@ -93,7 +93,7 @@ if($_SESSION['status'] != "login"){
                         <div class="rumus-box">
                             <span class="text-succes">Kriteria Cost (Biaya):</span><br>
                             (Max - Nilai) / (Max - Min)
-                            <br><span class="text-danger">Note : Benefit semakin besar nilai nya maka akan semakin baik</span>
+                            <br><span class="text-danger">Note : Benefit semakin kecil nilai nya maka akan semakin baik</span>
                         </div>
 
                         <h6 class="fw-bold mt-4">2. Rumus Nilai Akhir</h6>
